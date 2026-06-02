@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BlueLock Crypto Tracking V1</title>
+  <link rel="stylesheet" href="/static/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;600;700;900&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="logo-block">
+        <div class="logo-icon">
+          <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="8" y="18" width="24" height="18" rx="3" stroke="#00d4ff" stroke-width="2"/>
+            <path d="M13 18V13a7 7 0 0 1 14 0v5" stroke="#00d4ff" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="20" cy="27" r="3" fill="#00d4ff"/>
+            <line x1="20" y1="30" x2="20" y2="33" stroke="#00d4ff" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="logo-text">
+          <span class="logo-main">BLUELOCK</span>
+          <span class="logo-sub">CRYPTO TRACKING V1</span>
+        </div>
+      </div>
+      <div class="header-status">
+        <span class="status-dot" id="statusDot"></span>
+        <span class="status-label" id="statusLabel">Connecting...</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- NAVIGATION -->
+  <nav class="main-nav">
+    <button class="nav-tab active" data-tab="dashboard">
+      <span class="tab-icon">⬡</span> Dashboard
+    </button>
+    <button class="nav-tab" data-tab="prices">
+      <span class="tab-icon">◈</span> Prices
+    </button>
+    <button class="nav-tab" data-tab="portfolio">
+      <span class="tab-icon">◉</span> Portfolio
+    </button>
+    <button class="nav-tab" data-tab="about">
+      <span class="tab-icon">◎</span> About
+    </button>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="app-main">
+
+    <!-- ===== DASHBOARD TAB ===== -->
+    <section class="tab-content active" id="tab-dashboard">
+      <div class="section-header">
+        <h2 class="section-title">Dashboard</h2>
+        <button class="btn btn-secondary" onclick="refreshAll()">
+          <span class="btn-icon">↻</span> Refresh
+        </button>
+      </div>
+
+      <!-- Stats Row -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Portfolio Value</div>
+          <div class="stat-value" id="dashTotalValue">—</div>
+          <div class="stat-hint">Total USD</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Cost Basis</div>
+          <div class="stat-value" id="dashCostBasis">—</div>
+          <div class="stat-hint">Amount Invested</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total P&amp;L</div>
+          <div class="stat-value" id="dashPnl">—</div>
+          <div class="stat-hint" id="dashRoi">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">API Status</div>
+          <div class="stat-value api-status-value" id="dashApiStatus">—</div>
+          <div class="stat-hint" id="dashLastUpdated">—</div>
+        </div>
+      </div>
+
+      <!-- Top Gainer / Loser Row -->
+      <div class="gainer-loser-grid" id="gainerLoserGrid" style="display:none;">
+        <div class="stat-card gainer-card">
+          <div class="stat-label">🏆 Top Gainer</div>
+          <div class="stat-value" id="dashTopGainer">—</div>
+          <div class="stat-hint" id="dashTopGainerRoi">—</div>
+        </div>
+        <div class="stat-card loser-card">
+          <div class="stat-label">📉 Top Loser</div>
+          <div class="stat-value" id="dashTopLoser">—</div>
+          <div class="stat-hint" id="dashTopLoserRoi">—</div>
+        </div>
+      </div>
+
+      <!-- Favorites Panel -->
+      <div class="panel">
+        <div class="panel-header">
+          <h3 class="panel-title">⭐ Favorites</h3>
+        </div>
+        <div class="panel-body">
+          <div class="coin-grid" id="dashFavorites">
+            <div class="empty-state">Star coins in the Prices tab to see them here.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Portfolio Snapshot -->
+      <div class="panel">
+        <div class="panel-header">
+          <h3 class="panel-title">◉ Portfolio Snapshot</h3>
+        </div>
+        <div class="panel-body">
+          <div class="coin-grid" id="dashPortfolio">
+            <div class="empty-state">Add holdings in the Portfolio tab to see them here.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== PRICES TAB ===== -->
+    <section class="tab-content" id="tab-prices">
+      <div class="section-header">
+        <h2 class="section-title">Live Prices</h2>
+        <button class="btn btn-secondary" onclick="refreshAll()">
+          <span class="btn-icon">↻</span> Refresh
+        </button>
+      </div>
+
+      <div class="search-bar">
+        <span class="search-icon">⌕</span>
+        <input type="text" id="searchInput" class="search-input"
+          placeholder="Search by name or symbol (e.g. BTC, Monero)..."
+          oninput="filterCoins()" autocomplete="off" />
+        <button class="search-clear" onclick="clearSearch()" title="Clear search">✕</button>
+      </div>
+
+      <div class="filter-bar">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="Privacy">Privacy</button>
+        <button class="filter-btn" data-filter="Major">Major</button>
+        <button class="filter-btn" data-filter="Stablecoin">Stablecoin</button>
+        <button class="filter-btn" data-filter="favorites">★ Favorites</button>
+      </div>
+
+      <div class="panel">
+        <div class="panel-body no-pad">
+          <div id="priceTableContainer">
+            <div class="loading-state">
+              <div class="spinner"></div>
+              <span>Loading prices...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Calculator Panel -->
+      <div class="panel">
+        <div class="panel-header">
+          <h3 class="panel-title">⬡ Price Calculator</h3>
+        </div>
+        <div class="panel-body">
+          <div class="calculator">
+            <div class="calc-row">
+              <div class="form-group">
+                <label class="form-label">Coin</label>
+                <select id="calcCoin" class="form-select" onchange="runCalculator()">
+                  <!-- Options injected by JS -->
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Amount</label>
+                <input type="number" id="calcAmount" class="form-input"
+                  placeholder="0.00" min="0" step="any" oninput="runCalculator()" />
+              </div>
+            </div>
+            <div class="calc-result" id="calcResult">
+              <span class="calc-placeholder">Enter a coin and amount above to calculate value.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== PORTFOLIO TAB ===== -->
+    <section class="tab-content" id="tab-portfolio">
+      <div class="section-header">
+        <h2 class="section-title">My Portfolio</h2>
+        <div class="section-header-actions">
+          <button class="btn btn-secondary" onclick="exportPortfolioCSV()" title="Export to CSV">
+            <span class="btn-icon">⬇</span> Export CSV
+          </button>
+          <button class="btn btn-secondary" onclick="refreshAll()">
+            <span class="btn-icon">↻</span> Refresh
+          </button>
+        </div>
+      </div>
+
+      <!-- Portfolio Summary Card -->
+      <div class="portfolio-summary-card" id="portfolioSummaryCard" style="display:none;">
+        <div class="summary-item">
+          <div class="summary-label">Portfolio Value</div>
+          <div class="summary-value" id="summaryTotalValue">—</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">Cost Basis</div>
+          <div class="summary-value" id="summaryCostBasis">—</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">Profit / Loss</div>
+          <div class="summary-value" id="summaryPnl">—</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">Overall ROI</div>
+          <div class="summary-value" id="summaryRoi">—</div>
+        </div>
+      </div>
+
+      <!-- Portfolio Search & Filter -->
+      <div class="search-bar">
+        <span class="search-icon">⌕</span>
+        <input type="text" id="portfolioSearchInput" class="search-input"
+          placeholder="Search holdings by name or symbol..."
+          oninput="filterPortfolio()" autocomplete="off" />
+        <button class="search-clear" onclick="clearPortfolioSearch()" title="Clear search">✕</button>
+      </div>
+
+      <div class="filter-bar">
+        <button class="filter-btn active" data-portfolio-filter="all">All</button>
+        <button class="filter-btn" data-portfolio-filter="Privacy">Privacy</button>
+        <button class="filter-btn" data-portfolio-filter="Major">Major</button>
+        <button class="filter-btn" data-portfolio-filter="Stablecoin">Stablecoin</button>
+        <button class="filter-btn" data-portfolio-filter="favorites">★ Favorites</button>
+      </div>
+
+      <!-- ===== ADD PURCHASE FORM ===== -->
+      <div class="panel">
+        <div class="panel-header">
+          <h3 class="panel-title" id="entryFormTitle">➕ Add Purchase</h3>
+        </div>
+        <div class="panel-body">
+
+          <div class="add-form portfolio-entry-form">
+            <input type="hidden" id="entryEditId" value="" />
+
+            <!-- ROW 1: Coin + Amount -->
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Coin <span class="required-star">*</span></label>
+                <select id="portfolioCoin" class="form-select" onchange="onFormChange()">
+                  <!-- Options injected by JS -->
+                </select>
+                <span class="form-help">Which coin did you buy?</span>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Amount Owned <span class="required-star">*</span></label>
+                <input type="number" id="portfolioAmount" class="form-input"
+                  placeholder="100" min="0" step="any" oninput="onFormChange()" />
+                <span class="form-help">How many coins do you own?</span>
+              </div>
+            </div>
+
+            <!-- ROW 2: Purchase Price + Date -->
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Purchase Price Per Coin (USD) <span class="required-star">*</span></label>
+                <input type="number" id="portfolioPurchasePrice" class="form-input"
+                  placeholder="0.005" min="0" step="any" oninput="onFormChange()" />
+                <span class="form-help">How much did you pay for each coin?</span>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Purchase Date <span class="optional-label">(Optional)</span></label>
+                <input type="date" id="portfolioDate" class="form-input" />
+                <span class="form-help">When did you make this purchase?</span>
+              </div>
+            </div>
+
+            <!-- LIVE PREVIEW PANEL -->
+            <div class="purchase-preview" id="purchasePreview" style="display:none;">
+              <div class="preview-title">📊 Purchase Preview <span class="preview-note">— calculated automatically</span></div>
+              <div class="preview-grid">
+                <div class="preview-item">
+                  <div class="preview-label">Cost Basis</div>
+                  <div class="preview-value" id="previewCostBasis">—</div>
+                  <div class="preview-formula" id="previewCostBasisFormula"></div>
+                </div>
+                <div class="preview-item">
+                  <div class="preview-label">Current Market Price</div>
+                  <div class="preview-value" id="previewCurrentPrice">—</div>
+                </div>
+                <div class="preview-item">
+                  <div class="preview-label">Current Value</div>
+                  <div class="preview-value" id="previewCurrentValue">—</div>
+                  <div class="preview-formula" id="previewCurrentValueFormula"></div>
+                </div>
+                <div class="preview-item">
+                  <div class="preview-label">Profit / Loss</div>
+                  <div class="preview-value" id="previewPnl">—</div>
+                </div>
+                <div class="preview-item">
+                  <div class="preview-label">ROI</div>
+                  <div class="preview-value" id="previewRoi">—</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button class="btn btn-primary btn-large" onclick="savePortfolioEntry()" id="entrySubmitBtn">
+                Add Purchase
+              </button>
+              <button class="btn btn-secondary" onclick="cancelEditEntry()" id="entryCancelBtn" style="display:none;">
+                Cancel
+              </button>
+            </div>
+          </div>
+
+          <div id="portfolioFormMsg" class="form-msg"></div>
+        </div>
+      </div>
+
+      <!-- Portfolio Holdings Table -->
+      <div class="panel">
+        <div class="panel-header">
+          <h3 class="panel-title">Holdings</h3>
+        </div>
+        <div class="panel-body no-pad">
+          <div id="portfolioTableContainer">
+            <div class="empty-state" style="padding: 2rem;">
+              No holdings yet. Add your first purchase above.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== ABOUT TAB ===== -->
+    <section class="tab-content" id="tab-about">
+      <div class="section-header">
+        <h2 class="section-title">About</h2>
+      </div>
+
+      <div class="about-grid">
+        <div class="panel about-panel">
+          <div class="panel-body">
+            <div class="about-logo">
+              <div class="about-lock-icon">
+                <svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="10" y="26" width="40" height="28" rx="4" stroke="#00d4ff" stroke-width="2.5"/>
+                  <path d="M19 26V19a11 11 0 0 1 22 0v7" stroke="#00d4ff" stroke-width="2.5" stroke-linecap="round"/>
+                  <circle cx="30" cy="40" r="4" fill="#00d4ff"/>
+                  <line x1="30" y1="44" x2="30" y2="49" stroke="#00d4ff" stroke-width="2.5" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <div class="about-app-name">BlueLock Crypto Tracking</div>
+              <div class="about-version">Version 1.1</div>
+            </div>
+            <p class="about-desc">
+              Open-source cryptocurrency price and portfolio tracker.
+              Built for privacy-conscious users who want a simple,
+              transparent tool without accounts, logins, or third-party data sharing.
+            </p>
+          </div>
+        </div>
+
+        <div class="panel about-panel">
+          <div class="panel-header"><h3 class="panel-title">Supported Coins</h3></div>
+          <div class="panel-body">
+            <div class="coin-list-about" id="aboutCoinList"></div>
+          </div>
+        </div>
+
+        <div class="panel about-panel disclaimer-panel">
+          <div class="panel-header"><h3 class="panel-title">⚠ Disclaimer</h3></div>
+          <div class="panel-body">
+            <p class="disclaimer-text">
+              This application does <strong>not</strong> provide financial advice,
+              custody services, wallet services, or transaction functionality.
+            </p>
+            <ul class="disclaimer-list">
+              <li>Does NOT store private keys or seed phrases</li>
+              <li>Does NOT connect to any exchange accounts</li>
+              <li>Does NOT execute trades or send transactions</li>
+              <li>Does NOT hold any funds</li>
+              <li>Price data sourced from CoinGecko public API</li>
+              <li>All data stored locally on your device only</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="panel about-panel">
+          <div class="panel-header"><h3 class="panel-title">Tech Stack</h3></div>
+          <div class="panel-body">
+            <div class="tech-list">
+              <div class="tech-item"><span class="tech-badge">Backend</span> Python 3 + FastAPI</div>
+              <div class="tech-item"><span class="tech-badge">Frontend</span> HTML + CSS + JavaScript</div>
+              <div class="tech-item"><span class="tech-badge">Database</span> SQLite (local)</div>
+              <div class="tech-item"><span class="tech-badge">Prices</span> CoinGecko Public API</div>
+              <div class="tech-item"><span class="tech-badge">Platform</span> Windows 11</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- COIN DETAIL MODAL -->
+  <div class="modal-overlay" id="coinDetailModal" onclick="closeCoinDetailModal(event)">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div class="modal-title-block">
+          <span class="modal-symbol" id="modalSymbol">—</span>
+          <span class="modal-name" id="modalName">—</span>
+        </div>
+        <button class="modal-close" onclick="closeCoinDetailModal()">✕</button>
+      </div>
+
+      <div class="modal-stats-grid">
+        <div class="modal-stat">
+          <div class="modal-stat-label">Current Price</div>
+          <div class="modal-stat-value" id="modalCurrentPrice">—</div>
+        </div>
+        <div class="modal-stat">
+          <div class="modal-stat-label">Amount Owned</div>
+          <div class="modal-stat-value" id="modalAmount">—</div>
+        </div>
+        <div class="modal-stat">
+          <div class="modal-stat-label">Avg Cost</div>
+          <div class="modal-stat-value" id="modalAvgCost">—</div>
+        </div>
+        <div class="modal-stat">
+          <div class="modal-stat-label">Cost Basis</div>
+          <div class="modal-stat-value" id="modalCostBasis">—</div>
+        </div>
+        <div class="modal-stat">
+          <div class="modal-stat-label">Current Value</div>
+          <div class="modal-stat-value" id="modalCurrentValue">—</div>
+        </div>
+        <div class="modal-stat">
+          <div class="modal-stat-label">Profit / Loss</div>
+          <div class="modal-stat-value" id="modalPnl">—</div>
+        </div>
+        <div class="modal-stat">
+          <div class="modal-stat-label">ROI</div>
+          <div class="modal-stat-value" id="modalRoi">—</div>
+        </div>
+        <div class="modal-stat">
+          <div class="modal-stat-label">Purchases</div>
+          <div class="modal-stat-value" id="modalEntryCount">—</div>
+        </div>
+      </div>
+
+      <div class="modal-section-title">Purchase History</div>
+      <div id="modalPurchaseHistory">
+        <div class="loading-state"><div class="spinner"></div><span>Loading...</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATIONS -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- FOOTER -->
+  <footer class="app-footer">
+    <span>BlueLock Crypto Tracking V1 &mdash; Open Source &mdash; No Financial Advice</span>
+    <span class="footer-update">Last updated: <span id="footerLastUpdated">—</span></span>
+  </footer>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

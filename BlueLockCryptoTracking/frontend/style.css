@@ -1,0 +1,1423 @@
+/* =============================================================================
+   BlueLock Crypto Tracking V1 — Stylesheet
+   Theme: Dark Cyber / Blue Accent
+   Fonts: Orbitron (headers), Rajdhani (UI), Share Tech Mono (values)
+   ============================================================================= */
+
+/* ---------------------------------------------------------------------------
+   CSS Variables — Edit here to retheme the whole app
+   --------------------------------------------------------------------------- */
+:root {
+  /* Core Palette */
+  --bg-base:        #080c14;
+  --bg-panel:       #0d1421;
+  --bg-panel-alt:   #111827;
+  --bg-row-hover:   #162035;
+  --bg-input:       #0a1020;
+
+  /* Borders */
+  --border-color:   #1e3a5f;
+  --border-accent:  #0066cc;
+  --border-glow:    #00d4ff;
+
+  /* Text */
+  --text-primary:   #e8f4ff;
+  --text-secondary: #7a9cbf;
+  --text-muted:     #3d5a7a;
+  --text-code:      #00d4ff;
+
+  /* Accents */
+  --accent-blue:    #00d4ff;
+  --accent-blue-dim:#0066aa;
+  --accent-green:   #00ff88;
+  --accent-red:     #ff4466;
+  --accent-yellow:  #ffcc00;
+  --accent-purple:  #7c55ff;
+
+  /* Component sizes */
+  --header-height:  64px;
+  --nav-height:     52px;
+  --radius-sm:      4px;
+  --radius-md:      8px;
+  --radius-lg:      12px;
+
+  /* Glow effects */
+  --glow-blue:      0 0 16px rgba(0, 212, 255, 0.25);
+  --glow-blue-strong: 0 0 24px rgba(0, 212, 255, 0.5);
+}
+
+/* ---------------------------------------------------------------------------
+   Reset & Base
+   --------------------------------------------------------------------------- */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 500;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  /* Subtle grid background */
+  background-image:
+    linear-gradient(rgba(0, 102, 204, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 102, 204, 0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* ---------------------------------------------------------------------------
+   Typography
+   --------------------------------------------------------------------------- */
+h1, h2, h3, h4 {
+  font-family: 'Orbitron', sans-serif;
+  letter-spacing: 0.05em;
+}
+
+.mono {
+  font-family: 'Share Tech Mono', monospace;
+}
+
+/* ---------------------------------------------------------------------------
+   Header
+   --------------------------------------------------------------------------- */
+.app-header {
+  height: var(--header-height);
+  background: linear-gradient(180deg, #0a1428 0%, #0d1421 100%);
+  border-bottom: 1px solid var(--border-color);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 24px rgba(0, 0, 0, 0.5);
+}
+
+.header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.5rem;
+}
+
+.logo-block {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.logo-icon {
+  width: 40px;
+  height: 40px;
+  filter: drop-shadow(0 0 8px rgba(0, 212, 255, 0.6));
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { filter: drop-shadow(0 0 6px rgba(0, 212, 255, 0.5)); }
+  50%       { filter: drop-shadow(0 0 16px rgba(0, 212, 255, 0.9)); }
+}
+
+.logo-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+}
+
+.logo-main {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 900;
+  color: var(--accent-blue);
+  letter-spacing: 0.12em;
+  text-shadow: 0 0 12px rgba(0, 212, 255, 0.7);
+}
+
+.logo-sub {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--text-secondary);
+  letter-spacing: 0.08em;
+  margin-top: 2px;
+}
+
+.header-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  transition: all 0.3s;
+}
+
+.status-dot.online  { background: var(--accent-green); box-shadow: 0 0 8px var(--accent-green); animation: blink 2s infinite; }
+.status-dot.offline { background: var(--accent-red);   box-shadow: 0 0 8px var(--accent-red); }
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}
+
+/* ---------------------------------------------------------------------------
+   Navigation
+   --------------------------------------------------------------------------- */
+.main-nav {
+  display: flex;
+  gap: 0;
+  background: var(--bg-panel);
+  border-bottom: 1px solid var(--border-color);
+  padding: 0 1.5rem;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.nav-tab {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0 1.5rem;
+  height: var(--nav-height);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-secondary);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  text-transform: uppercase;
+}
+
+.nav-tab:hover {
+  color: var(--text-primary);
+  background: rgba(0, 212, 255, 0.05);
+}
+
+.nav-tab.active {
+  color: var(--accent-blue);
+  border-bottom-color: var(--accent-blue);
+  text-shadow: 0 0 8px rgba(0, 212, 255, 0.5);
+}
+
+.tab-icon {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+/* ---------------------------------------------------------------------------
+   Main Content Area
+   --------------------------------------------------------------------------- */
+.app-main {
+  flex: 1;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+/* Tab Show/Hide */
+.tab-content {
+  display: none;
+  animation: fadeIn 0.2s ease;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------------------------------------------------------------------------
+   Section Header
+   --------------------------------------------------------------------------- */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+
+.section-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: 0.08em;
+}
+
+/* ---------------------------------------------------------------------------
+   Buttons
+   --------------------------------------------------------------------------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1.1rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background: var(--accent-blue);
+  color: #000;
+  border-color: var(--accent-blue);
+}
+
+.btn-primary:hover {
+  background: #00eeff;
+  box-shadow: var(--glow-blue-strong);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--accent-blue);
+  border-color: var(--border-accent);
+}
+
+.btn-secondary:hover {
+  background: rgba(0, 212, 255, 0.08);
+  border-color: var(--accent-blue);
+  box-shadow: var(--glow-blue);
+}
+
+.btn-danger {
+  background: transparent;
+  color: var(--accent-red);
+  border-color: rgba(255, 68, 102, 0.4);
+  padding: 0.3rem 0.7rem;
+  font-size: 0.8rem;
+}
+
+.btn-danger:hover {
+  background: rgba(255, 68, 102, 0.1);
+  border-color: var(--accent-red);
+}
+
+.btn-icon {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.btn-star {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  color: var(--text-muted);
+  transition: all 0.2s;
+  padding: 0 0.25rem;
+  line-height: 1;
+}
+
+.btn-star.active { color: var(--accent-yellow); text-shadow: 0 0 8px rgba(255, 204, 0, 0.7); }
+.btn-star:hover  { transform: scale(1.2); }
+
+/* ---------------------------------------------------------------------------
+   Dashboard Stats Grid
+   --------------------------------------------------------------------------- */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.stat-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1.25rem 1.5rem;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent-blue), transparent);
+  opacity: 0.5;
+}
+
+.stat-card:hover {
+  border-color: var(--border-accent);
+}
+
+.stat-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.5rem;
+}
+
+.stat-value {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--accent-blue);
+  text-shadow: 0 0 8px rgba(0, 212, 255, 0.4);
+  margin-bottom: 0.25rem;
+  word-break: break-all;
+}
+
+.api-status-value.online  { color: var(--accent-green); text-shadow: 0 0 8px rgba(0, 255, 136, 0.4); }
+.api-status-value.offline { color: var(--accent-red);   text-shadow: 0 0 8px rgba(255, 68, 102, 0.4); }
+
+.stat-hint {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+/* ---------------------------------------------------------------------------
+   Panels
+   --------------------------------------------------------------------------- */
+.panel {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  margin-bottom: 1.25rem;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1.25rem;
+  border-bottom: 1px solid var(--border-color);
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.panel-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.panel-body {
+  padding: 1.25rem;
+}
+
+.panel-body.no-pad {
+  padding: 0;
+}
+
+/* ---------------------------------------------------------------------------
+   Coin Cards (Dashboard)
+   --------------------------------------------------------------------------- */
+.coin-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 0.75rem;
+}
+
+.coin-card {
+  background: var(--bg-panel-alt);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 0.9rem 1rem;
+  transition: all 0.2s;
+  cursor: default;
+}
+
+.coin-card:hover {
+  border-color: var(--border-accent);
+  background: var(--bg-row-hover);
+  box-shadow: var(--glow-blue);
+}
+
+.coin-card-symbol {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--accent-blue);
+}
+
+.coin-card-name {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin: 0.15rem 0 0.5rem;
+}
+
+.coin-card-price {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+}
+
+.coin-card-value {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--accent-green);
+  margin-top: 0.2rem;
+}
+
+/* ---------------------------------------------------------------------------
+   Price Table
+   --------------------------------------------------------------------------- */
+.price-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.price-table th {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 0.75rem 1.25rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+  background: rgba(0, 0, 0, 0.2);
+  white-space: nowrap;
+}
+
+.price-table td {
+  padding: 0.8rem 1.25rem;
+  border-bottom: 1px solid rgba(30, 58, 95, 0.5);
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.price-table tr:last-child td {
+  border-bottom: none;
+}
+
+.price-table tbody tr {
+  transition: background 0.15s;
+}
+
+.price-table tbody tr:hover {
+  background: var(--bg-row-hover);
+}
+
+.price-table tbody tr.is-favorite {
+  background: rgba(255, 204, 0, 0.04);
+}
+
+.col-symbol {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--accent-blue);
+  min-width: 70px;
+}
+
+.col-name {
+  color: var(--text-primary);
+  font-size: 0.95rem;
+}
+
+.col-category {
+  font-size: 0.75rem;
+}
+
+.category-badge {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border-radius: 2px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border: 1px solid;
+}
+
+.category-badge.Privacy    { color: #a78bfa; border-color: rgba(167,139,250,0.4); background: rgba(124,85,255,0.1); }
+.category-badge.Major      { color: var(--accent-blue); border-color: rgba(0,212,255,0.4); background: rgba(0,212,255,0.08); }
+.category-badge.Stablecoin { color: var(--accent-green); border-color: rgba(0,255,136,0.4); background: rgba(0,255,136,0.08); }
+
+.col-price {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  min-width: 110px;
+}
+
+.price-unavailable {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.col-updated {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.col-actions {
+  text-align: right;
+}
+
+/* ---------------------------------------------------------------------------
+   Search Bar
+   --------------------------------------------------------------------------- */
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 0 0.75rem;
+  margin-bottom: 0.75rem;
+  transition: border-color 0.2s;
+}
+
+.search-bar:focus-within {
+  border-color: var(--accent-blue);
+  box-shadow: var(--glow-blue);
+}
+
+.search-icon {
+  color: var(--text-muted);
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.search-input {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1rem;
+  padding: 0.65rem 0;
+}
+
+.search-input::placeholder { color: var(--text-muted); }
+
+.search-clear {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 0.25rem;
+  transition: color 0.2s;
+}
+.search-clear:hover { color: var(--accent-red); }
+
+/* ---------------------------------------------------------------------------
+   Filter Bar
+   --------------------------------------------------------------------------- */
+.filter-bar {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.filter-btn {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-color);
+  border-radius: 2px;
+  color: var(--text-secondary);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  padding: 0.35rem 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+}
+
+.filter-btn:hover {
+  border-color: var(--accent-blue-dim);
+  color: var(--text-primary);
+}
+
+.filter-btn.active {
+  background: rgba(0, 212, 255, 0.1);
+  border-color: var(--accent-blue);
+  color: var(--accent-blue);
+}
+
+/* ---------------------------------------------------------------------------
+   Calculator
+   --------------------------------------------------------------------------- */
+.calculator {}
+
+.calc-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.calc-result {
+  background: var(--bg-base);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 1rem 1.25rem;
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+}
+
+.calc-placeholder {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.calc-output {
+  width: 100%;
+}
+
+.calc-line {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.4rem;
+  font-size: 0.9rem;
+}
+
+.calc-line:last-child { margin-bottom: 0; }
+
+.calc-key   { color: var(--text-secondary); }
+.calc-val   { font-family: 'Share Tech Mono', monospace; color: var(--text-primary); }
+.calc-total { font-family: 'Share Tech Mono', monospace; color: var(--accent-green); font-size: 1.1rem; font-weight: bold; }
+
+/* ---------------------------------------------------------------------------
+   Forms
+   --------------------------------------------------------------------------- */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.form-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.form-select,
+.form-input {
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1rem;
+  padding: 0.55rem 0.85rem;
+  outline: none;
+  transition: border-color 0.2s;
+  width: 100%;
+}
+
+.form-select { cursor: pointer; }
+
+.form-select:focus,
+.form-input:focus {
+  border-color: var(--accent-blue);
+  box-shadow: var(--glow-blue);
+}
+
+.form-select option { background: var(--bg-panel); }
+
+.form-msg {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  min-height: 1.2rem;
+}
+
+.form-msg.success { color: var(--accent-green); }
+.form-msg.error   { color: var(--accent-red); }
+
+/* ---------------------------------------------------------------------------
+   Add Holding Form
+   --------------------------------------------------------------------------- */
+.add-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 1rem;
+  align-items: end;
+}
+
+/* ---------------------------------------------------------------------------
+   Portfolio Table
+   --------------------------------------------------------------------------- */
+.portfolio-total {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.portfolio-total span {
+  color: var(--accent-green);
+  font-size: 1rem;
+}
+
+/* ---------------------------------------------------------------------------
+   Loading & Empty States
+   --------------------------------------------------------------------------- */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 3rem;
+  color: var(--text-muted);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.85rem;
+}
+
+.empty-state {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-style: italic;
+  padding: 0.25rem 0;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 2px solid var(--border-color);
+  border-top-color: var(--accent-blue);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ---------------------------------------------------------------------------
+   About Page
+   --------------------------------------------------------------------------- */
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+.about-panel { height: fit-content; }
+
+.about-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.about-lock-icon {
+  width: 80px;
+  height: 80px;
+  margin-bottom: 1rem;
+  filter: drop-shadow(0 0 16px rgba(0, 212, 255, 0.6));
+}
+
+.about-app-name {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--accent-blue);
+  text-shadow: 0 0 12px rgba(0, 212, 255, 0.5);
+  letter-spacing: 0.08em;
+  margin-bottom: 0.4rem;
+}
+
+.about-version {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.about-desc {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  text-align: center;
+}
+
+.coin-list-about {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.coin-about-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid rgba(30, 58, 95, 0.4);
+  font-size: 0.9rem;
+}
+
+.coin-about-row:last-child { border-bottom: none; }
+
+.coin-about-symbol {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--accent-blue);
+  width: 50px;
+}
+
+.coin-about-name { color: var(--text-primary); flex: 1; padding: 0 0.5rem; }
+
+.disclaimer-panel { border-color: rgba(255, 68, 102, 0.3); }
+.disclaimer-panel .panel-header { border-color: rgba(255, 68, 102, 0.3); }
+.disclaimer-panel .panel-title { color: var(--accent-red); }
+
+.disclaimer-text {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+
+.disclaimer-text strong { color: var(--accent-red); }
+
+.disclaimer-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.disclaimer-list li {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  padding-left: 1.25rem;
+  position: relative;
+}
+
+.disclaimer-list li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: var(--accent-green);
+  font-size: 0.8rem;
+}
+
+.tech-list { display: flex; flex-direction: column; gap: 0.6rem; }
+
+.tech-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+}
+
+.tech-badge {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  padding: 0.15rem 0.5rem;
+  border: 1px solid var(--border-accent);
+  color: var(--accent-blue);
+  border-radius: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  min-width: 70px;
+  text-align: center;
+}
+
+/* ---------------------------------------------------------------------------
+   Toast Notifications
+   --------------------------------------------------------------------------- */
+.toast-container {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  z-index: 9999;
+}
+
+.toast {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 0.7rem 1.1rem;
+  font-size: 0.875rem;
+  max-width: 320px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+  animation: slideIn 0.25s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.toast.success { border-color: rgba(0, 255, 136, 0.5); color: var(--accent-green); }
+.toast.error   { border-color: rgba(255, 68, 102, 0.5); color: var(--accent-red); }
+.toast.info    { border-color: var(--border-accent); color: var(--accent-blue); }
+
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+
+/* ---------------------------------------------------------------------------
+   Footer
+   --------------------------------------------------------------------------- */
+.app-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  background: var(--bg-panel);
+  border-top: 1px solid var(--border-color);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* ---------------------------------------------------------------------------
+   Responsive — Narrow screens
+   --------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  .about-grid       { grid-template-columns: 1fr; }
+  .calc-row         { grid-template-columns: 1fr; }
+  .add-form         { grid-template-columns: 1fr; }
+  .stats-grid       { grid-template-columns: 1fr 1fr; }
+
+  .price-table .col-updated,
+  .price-table .col-category { display: none; }
+}
+
+@media (max-width: 480px) {
+  .stats-grid  { grid-template-columns: 1fr; }
+  .app-main    { padding: 1rem; }
+  .header-inner { padding: 0 1rem; }
+}
+
+/* ---------------------------------------------------------------------------
+   Scrollbar Styling
+   --------------------------------------------------------------------------- */
+::-webkit-scrollbar        { width: 6px; height: 6px; }
+::-webkit-scrollbar-track  { background: var(--bg-base); }
+::-webkit-scrollbar-thumb  { background: var(--border-accent); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent-blue); }
+
+/* ---------------------------------------------------------------------------
+   Number Inputs — Remove spinner arrows
+   --------------------------------------------------------------------------- */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type=number] { -moz-appearance: textfield; }
+
+/* =====================================================================
+   PORTFOLIO V1.1 ADDITIONS
+   ===================================================================== */
+
+/* --- Positive / Negative Color Classes --- */
+.positive { color: #00e676; }
+.negative { color: #ff5252; }
+
+/* --- Section header actions group --- */
+.section-header-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+/* --- Portfolio Summary Card (above table) --- */
+.portfolio-summary-card {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  padding: 1.25rem;
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.07), rgba(0, 100, 200, 0.07));
+  border: 1px solid rgba(0, 212, 255, 0.25);
+  border-radius: 12px;
+}
+
+.summary-item {
+  text-align: center;
+}
+
+.summary-label {
+  font-size: 0.7rem;
+  color: var(--text-muted, #8899aa);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.3rem;
+}
+
+.summary-value {
+  font-family: 'Orbitron', monospace;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #00d4ff;
+}
+
+/* --- Top Gainer / Loser Grid --- */
+.gainer-loser-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.gainer-card .stat-value { color: #00e676; }
+.loser-card  .stat-value { color: #ff5252; }
+
+/* --- Portfolio entry form: multi-column layout --- */
+.portfolio-entry-form .form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.form-actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+/* --- Table scroll wrapper (horizontal scroll on narrow screens) --- */
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* --- Portfolio table specific --- */
+.portfolio-table { min-width: 800px; }
+
+.clickable-row {
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.clickable-row:hover { background: rgba(0, 212, 255, 0.06); }
+
+/* --- Small icon buttons in tables --- */
+.btn-icon-sm {
+  background: rgba(0, 212, 255, 0.1);
+  border: 1px solid rgba(0, 212, 255, 0.25);
+  color: #00d4ff;
+  border-radius: 6px;
+  padding: 0.2rem 0.45rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.15s;
+  margin: 0 2px;
+}
+.btn-icon-sm:hover { background: rgba(0, 212, 255, 0.22); }
+.btn-icon-sm.danger { color: #ff5252; border-color: rgba(255,82,82,0.3); background: rgba(255,82,82,0.08); }
+.btn-icon-sm.danger:hover { background: rgba(255,82,82,0.2); }
+
+/* --- Coin detail modal --- */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 8, 20, 0.85);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  backdrop-filter: blur(4px);
+}
+.modal-overlay.active { display: flex; }
+
+.modal-box {
+  background: #0d1a2b;
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  border-radius: 14px;
+  width: 100%;
+  max-width: 720px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 1.5rem;
+  box-shadow: 0 0 60px rgba(0, 212, 255, 0.15);
+}
+
+.modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(0, 212, 255, 0.15);
+}
+
+.modal-title-block {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+
+.modal-symbol {
+  font-family: 'Orbitron', monospace;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #00d4ff;
+}
+
+.modal-name {
+  font-size: 1rem;
+  color: #8899aa;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  color: #8899aa;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0.2rem 0.4rem;
+  border-radius: 6px;
+  transition: color 0.15s, background 0.15s;
+}
+.modal-close:hover { color: #fff; background: rgba(255,255,255,0.08); }
+
+.modal-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.modal-stat {
+  background: rgba(0, 212, 255, 0.05);
+  border: 1px solid rgba(0, 212, 255, 0.12);
+  border-radius: 8px;
+  padding: 0.75rem;
+  text-align: center;
+}
+
+.modal-stat-label {
+  font-size: 0.68rem;
+  color: #6699aa;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  margin-bottom: 0.3rem;
+}
+
+.modal-stat-value {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.95rem;
+  color: #e0eeff;
+}
+
+.modal-section-title {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #5588aa;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid rgba(0,212,255,0.1);
+}
+
+/* --- History table inside modal --- */
+.history-table {
+  font-size: 0.88rem;
+  width: 100%;
+}
+
+/* --- Dashboard coin cards P&L line --- */
+.coin-card-pnl {
+  font-size: 0.78rem;
+  font-family: 'Share Tech Mono', monospace;
+  margin-top: 0.2rem;
+}
+
+/* --- Price unavailable text --- */
+.price-unavailable { color: #556677; font-style: italic; }
+
+/* --- Error state --- */
+.error-state {
+  padding: 2rem;
+  text-align: center;
+  color: #ff6666;
+}
+
+/* =============================================================================
+   V1.1 ADDITIONS — Purchase Preview, Form Helpers, Status Styling
+   ============================================================================= */
+
+/* --- Required star & optional label --- */
+.required-star {
+  color: var(--accent-red, #ff4757);
+  margin-left: 2px;
+}
+
+.optional-label {
+  color: var(--text-muted, #888);
+  font-size: 0.8em;
+  font-weight: 400;
+  margin-left: 4px;
+}
+
+/* --- Form help text --- */
+.form-help {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--text-muted, #888);
+  margin-top: 4px;
+  line-height: 1.4;
+  font-family: 'Rajdhani', sans-serif;
+}
+
+/* --- Large submit button --- */
+.btn-large {
+  padding: 0.75rem 2.5rem !important;
+  font-size: 1rem !important;
+  letter-spacing: 0.08em;
+}
+
+/* --- Purchase Preview Panel --- */
+.purchase-preview {
+  background: rgba(0, 212, 255, 0.05);
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  border-radius: 8px;
+  padding: 1.25rem 1.5rem;
+  margin: 1rem 0;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.preview-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.78rem;
+  color: var(--accent-cyan, #00d4ff);
+  letter-spacing: 0.1em;
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+}
+
+.preview-note {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.75rem;
+  color: var(--text-muted, #888);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 1rem;
+}
+
+.preview-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.preview-label {
+  font-size: 0.72rem;
+  color: var(--text-muted, #888);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-family: 'Rajdhani', sans-serif;
+}
+
+.preview-value {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 1rem;
+  color: var(--text-primary, #e0e0e0);
+  font-weight: 600;
+}
+
+.preview-formula {
+  font-size: 0.7rem;
+  color: var(--text-muted, #888);
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.formula {
+  opacity: 0.7;
+}
+
+/* --- API Status colors in dashboard card --- */
+.api-status-value.online {
+  color: var(--accent-green, #00ff9d) !important;
+}
+
+.api-status-value.offline {
+  color: var(--accent-red, #ff4757) !important;
+}
+
+/* --- "Price Unavailable" text --- */
+.price-unavailable {
+  color: var(--text-muted, #888);
+  font-style: italic;
+  font-size: 0.85em;
+}
+
+/* --- About page coin list --- */
+.about-coin-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.about-coin-item:last-child {
+  border-bottom: none;
+}
+.about-coin-symbol {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.85rem;
+  color: var(--accent-cyan, #00d4ff);
+  min-width: 50px;
+}
+.about-coin-name {
+  flex: 1;
+  font-size: 0.9rem;
+  color: var(--text-primary, #e0e0e0);
+}
