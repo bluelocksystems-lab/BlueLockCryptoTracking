@@ -86,7 +86,7 @@ Prices are fetched live from CoinGecko and refreshed every 60 seconds.
 
 1. **Download or clone** this repository:
    ```
-   git clone https://github.com/YOUR_USERNAME/BlueLockCryptoTracking.git
+   git clone https://github.com/bluelocksystems-lab/BlueLockCryptoTracking.git
    ```
 2. Open the folder and **double-click `run.bat`**.
 3. The launcher will automatically:
