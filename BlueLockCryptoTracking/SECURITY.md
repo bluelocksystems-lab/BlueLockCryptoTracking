@@ -36,23 +36,6 @@ We will:
 - Coordinate a fix and public disclosure timeline with you
 - Credit you in the release notes 
 
-## Security Scope
-
-| In Scope | Out of Scope |
-|---|---|
-| SQL injection | Attacks requiring physical access to the machine |
-| XSS in the web UI | Social engineering |
-| CSRF or unauthorized API access | CoinGecko API vulnerabilities (report to them) |
-| Sensitive data exposure | Issues in Python/FastAPI/SQLite themselves |
-| Dependency vulnerabilities | |
-
-## Security Design Notes
-
-- All SQL queries use parameterized statements (no string interpolation)
-- All user input rendered in the frontend is HTML-escaped via `escHtml()`
-- Server binds to `127.0.0.1` only — not `0.0.0.0`
-- CORS is restricted to `http://127.0.0.1:8765`
-- No wallet connections, no private keys, no transaction functionality
 
 ---
 
