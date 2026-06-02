@@ -18,11 +18,10 @@ BlueLock Crypto Tracking is a **local-only, self-hosted** application. It:
 
 ## Reporting a Vulnerability
 
-**Please do NOT open a public GitHub issue for security vulnerabilities.**
+**Please open a public GitHub issue for security vulnerabilities.**
 
 If you discover a security vulnerability, please report it responsibly:
-
-**Email:** security@bluelocksystems.com  
+ 
 **Subject line:** `[BlueLock Security] Brief description`
 
 Include:
@@ -35,7 +34,7 @@ We will:
 - Acknowledge your report within **72 hours**
 - Provide a status update within **7 days**
 - Coordinate a fix and public disclosure timeline with you
-- Credit you in the release notes (unless you prefer to remain anonymous)
+- Credit you in the release notes 
 
 ## Security Scope
 
