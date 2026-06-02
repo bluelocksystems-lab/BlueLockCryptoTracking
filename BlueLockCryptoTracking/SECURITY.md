@@ -14,7 +14,7 @@ BlueLock Crypto Tracking is a **local-only, self-hosted** application. It:
 | Version | Supported |
 |---|---|
 | 1.x (latest) | ✅ Active support |
-| < 1.0 | ❌ No longer supported |
+
 
 ## Reporting a Vulnerability
 
