@@ -11,6 +11,11 @@ build/
 
 # Database — personal portfolio data should never be committed
 data/portfolio.db
+data/portfolio.db-shm
+data/portfolio.db-wal
+data/*.db
+data/*.db-shm
+data/*.db-wal
 
 # OS files
 .DS_Store

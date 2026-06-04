@@ -4,6 +4,23 @@ All notable changes to BlueLock Crypto Tracking are documented here.
 
 ---
 
+## [1.3] — 2026-06-03
+
+### Changed
+- Version bumped to 1.3
+- Improved Windows launcher reliability (`run.bat` rewritten):
+  - All pip commands now use `venv\Scripts\python.exe -m pip` to prevent pip.exe lock errors
+  - Browser opens after server is ready (4-second delay) — eliminates race condition
+  - Removed `--reload` flag to avoid `watchfiles` Rust dependency on clean Windows installs
+  - Added Python 3.10+ version check with clear download instructions
+  - venv detection now checks for `venv\Scripts\python.exe` instead of folder presence
+  - Per-command error handling with actionable error messages
+  - Package import verification step before server starts
+- `uvicorn[standard]` replaced with plain `uvicorn` in requirements.txt — removes native compilation dependency on Windows
+- `.gitignore` updated to block `portfolio.db-shm` and `portfolio.db-wal` from being committed
+
+---
+
 ## [1.2] — 2026-06-01
 
 ### Security

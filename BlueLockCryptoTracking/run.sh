@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-# BlueLock Crypto Tracking — Linux / macOS Launcher
+# BlueLock Crypto Tracking V1.3
 # =============================================================================
 # Usage: chmod +x run.sh && ./run.sh
 # =============================================================================
@@ -11,7 +11,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
 echo "============================================================"
-echo "  BlueLock Crypto Tracking"
+echo "  BlueLock Crypto Tracking V1.3"
 echo "============================================================"
 
 # Check Python 3.10+

@@ -11,7 +11,7 @@ import os
 # Application Info
 # ---------------------------------------------------------------------------
 APP_NAME = "BlueLock Crypto Tracking"
-APP_VERSION = "1.2"
+APP_VERSION = "1.3"
 APP_DESCRIPTION = "Open-source cryptocurrency price and portfolio tracker."
 APP_DISCLAIMER = (
     "This application does not provide financial advice, custody services, "
