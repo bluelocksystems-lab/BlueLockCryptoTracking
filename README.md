@@ -3,7 +3,7 @@
 ![Version](https://img.shields.io/badge/version-1.4-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Python](https://img.shields.io/badge/python-3.10+-yellow)
-![CI](https://github.com/bluelocksystems-lab/BlueLockCryptoTracking/actions/workflows/ci.yml/badge.svg)
+
 
 > Open-source cryptocurrency price and portfolio tracker.  
 > Privacy-focused, local-first portfolio tracking. No accounts, cloud storage, or telemetry.
