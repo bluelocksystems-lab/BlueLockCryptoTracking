@@ -25,6 +25,7 @@ from config import (
     API_MAX_RETRIES,
     API_RETRY_DELAY_SECONDS,
     CACHE_DURATION_SECONDS,
+    API_FAILURE_COOLDOWN_SECONDS,
 )
 
 logger = logging.getLogger(__name__)
@@ -37,11 +38,37 @@ _price_cache: dict = {}          # { symbol: { price, last_updated, ... } }
 _cache_timestamp: float = 0.0    # Unix timestamp of last successful fetch
 _api_status: str = "UNKNOWN"     # "ONLINE" | "OFFLINE" | "UNKNOWN"
 _cache_lock = threading.Lock()   # Guards cache writes against concurrent requests
+_last_failure_timestamp: float = 0.0  # Unix timestamp of last failed fetch attempt
 
 
 def _is_cache_valid() -> bool:
     """Return True if the cache is less than CACHE_DURATION_SECONDS old."""
     return (time.time() - _cache_timestamp) < CACHE_DURATION_SECONDS
+
+
+def _in_failure_cooldown() -> bool:
+    """
+    Return True if a fetch attempt failed recently (within
+    API_FAILURE_COOLDOWN_SECONDS). While in cooldown we skip hitting the
+    network again and just serve the existing (stale) cache, so an outage
+    doesn't turn every incoming request into a slow, blocking retry storm
+    against a downed API.
+    """
+    if _last_failure_timestamp == 0:
+        return False
+    return (time.time() - _last_failure_timestamp) < API_FAILURE_COOLDOWN_SECONDS
+
+
+def is_cache_stale() -> bool:
+    """
+    Return True if the currently served cache is older than
+    CACHE_DURATION_SECONDS. Used by API responses so the frontend can show
+    the person they're looking at stale data rather than silently pretending
+    a 10-minute-old price is fresh.
+    """
+    if _cache_timestamp == 0:
+        return True
+    return not _is_cache_valid()
 
 
 def _fetch_from_coingecko() -> Optional[dict]:
@@ -50,7 +77,7 @@ def _fetch_from_coingecko() -> Optional[dict]:
     supported coins. Returns raw API response dict or None on failure.
     Retries up to API_MAX_RETRIES times before giving up.
     """
-    global _api_status
+    global _api_status, _last_failure_timestamp
 
     # Build comma-separated list of CoinGecko IDs
     coin_ids = ",".join(SUPPORTED_COINS.values())
@@ -84,6 +111,7 @@ def _fetch_from_coingecko() -> Optional[dict]:
             time.sleep(API_RETRY_DELAY_SECONDS)
 
     _api_status = "OFFLINE"
+    _last_failure_timestamp = time.time()
     logger.error("CoinGecko API failed after %d attempts.", API_MAX_RETRIES + 1)
     return None
 
@@ -133,6 +161,13 @@ def refresh_prices(force: bool = False) -> bool:
         # Re-check inside the lock in case another thread just refreshed
         if not force and _is_cache_valid():
             return True
+
+        # If we just failed a moment ago, don't retry yet - serve stale cache
+        # instead of blocking every incoming request on a slow, doomed retry
+        # loop against an API that's still down.
+        if not force and _in_failure_cooldown():
+            logger.debug("In API failure cooldown, skipping retry and serving stale cache.")
+            return False
 
         gecko_data = _fetch_from_coingecko()
         if gecko_data is None:

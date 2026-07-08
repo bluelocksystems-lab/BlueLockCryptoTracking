@@ -170,6 +170,7 @@ h1, h2, h3, h4 {
 
 .status-dot.online  { background: var(--accent-green); box-shadow: 0 0 8px var(--accent-green); animation: blink 2s infinite; }
 .status-dot.offline { background: var(--accent-red);   box-shadow: 0 0 8px var(--accent-red); }
+.status-dot.stale   { background: var(--accent-yellow); box-shadow: 0 0 8px var(--accent-yellow); }
 
 @keyframes blink {
   0%, 100% { opacity: 1; }
@@ -397,6 +398,7 @@ h1, h2, h3, h4 {
 
 .api-status-value.online  { color: var(--accent-green); text-shadow: 0 0 8px rgba(0, 255, 136, 0.4); }
 .api-status-value.offline { color: var(--accent-red);   text-shadow: 0 0 8px rgba(255, 68, 102, 0.4); }
+.api-status-value.stale   { color: var(--accent-yellow); text-shadow: 0 0 8px rgba(255, 204, 0, 0.4); }
 
 .stat-hint {
   font-size: 0.75rem;
@@ -1310,6 +1312,16 @@ input[type=number] { -moz-appearance: textfield; }
 }
 
 /* --- Dashboard coin cards P&L line --- */
+.coin-card-note {
+  margin-top: 0.35rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-style: italic;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .coin-card-pnl {
   font-size: 0.78rem;
   font-family: 'Share Tech Mono', monospace;

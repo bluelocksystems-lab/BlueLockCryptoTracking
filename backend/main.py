@@ -4,7 +4,8 @@
 # Entry point for the backend server.
 # Serves the frontend static files AND provides the JSON API.
 #
-# Start with: uvicorn main:app --host 127.0.0.1 --port 8765
+# Start with: python main.py
+# (host/port come from config.SERVER_HOST / config.SERVER_PORT)
 # =============================================================================
 
 import csv
@@ -132,6 +133,7 @@ def health_check():
         "version":            config.APP_VERSION,
         "api_status":         prices.get_api_status(),
         "cache_age_seconds":  round(prices.get_cache_age_seconds(), 1),
+        "is_stale":           prices.is_cache_stale(),
         "server_time_utc":    datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
     }
 
@@ -161,6 +163,7 @@ def get_all_prices(request: Request):
         "coins":              result,
         "api_status":         prices.get_api_status(),
         "cache_age_seconds":  round(prices.get_cache_age_seconds(), 1),
+        "is_stale":           prices.is_cache_stale(),
         "last_updated":       datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
     }
 
@@ -273,6 +276,7 @@ def get_portfolio(request: Request):
         "top_gainer":  top_gainer,
         "top_loser":   top_loser,
         "api_status":  prices.get_api_status(),
+        "is_stale":    prices.is_cache_stale(),
         "last_updated": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
     }
 
@@ -521,7 +525,7 @@ def get_watchlist(request: Request):
             "last_updated": price_data["last_updated"] if price_data else None,
         })
 
-    return {"watchlist": result}
+    return {"watchlist": result, "is_stale": prices.is_cache_stale()}
 
 
 @app.post("/api/watchlist")
@@ -578,3 +582,17 @@ async def internal_error_handler(request: Request, exc):
         status_code=500,
         content={"error": "Internal server error. Please try again."},
     )
+
+
+# ---------------------------------------------------------------------------
+# Entry Point
+# ---------------------------------------------------------------------------
+# Running this file directly (rather than invoking uvicorn on the CLI with
+# hardcoded flags) is what makes config.SERVER_HOST / config.SERVER_PORT
+# actually control where the server binds. run.sh and run.bat both launch
+# the app this way for exactly that reason - edit those two config values
+# and the port-in-use check, the server bind, and the auto-opened browser
+# URL all stay in sync automatically.
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host=config.SERVER_HOST, port=config.SERVER_PORT)

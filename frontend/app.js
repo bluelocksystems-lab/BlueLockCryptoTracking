@@ -157,7 +157,7 @@ function populateCoinSelects(coins) {
 // Data Loading
 // ---------------------------------------------------------------------------
 async function refreshAll() {
-  await Promise.all([loadPrices(), loadPortfolio()]);
+  await Promise.all([loadPrices(), loadPortfolio(), loadWatchlist()]);
 }
 
 async function loadPrices() {
@@ -171,8 +171,8 @@ async function loadPrices() {
     livePriceMap = {};
     allCoinsData.forEach(c => { livePriceMap[c.symbol] = c.price_usd; });
 
-    updateStatusIndicator(data.api_status);
-    updateLastUpdated(formatLocalTime(data.last_updated));
+    updateStatusIndicator(data.api_status, data.is_stale);
+    updateLastUpdated(formatLocalTime(data.last_updated), data.is_stale);
     renderPriceTable();
     renderDashboardFavorites();
 
@@ -192,8 +192,8 @@ async function loadPortfolio() {
     renderPortfolioSummary(data.summary, data.top_gainer, data.top_loser);
     renderDashboardPortfolio(data.summary);
     renderDashboardGainerLoser(data.top_gainer, data.top_loser);
-    updateStatusIndicator(data.api_status);
-    updateLastUpdated(formatLocalTime(data.last_updated));
+    updateStatusIndicator(data.api_status, data.is_stale);
+    updateLastUpdated(formatLocalTime(data.last_updated), data.is_stale);
   } catch (err) {
     console.error("loadPortfolio failed:", err);
   }
@@ -937,16 +937,52 @@ async function toggleFavorite(symbol, addFavorite) {
 // ---------------------------------------------------------------------------
 async function loadWatchlist() {
   const container = document.getElementById("watchlistContainer");
-  if (!container) return;
 
   try {
     const data = await apiGet("/api/watchlist");
-    renderWatchlist(data.watchlist || []);
+    const items = data.watchlist || [];
+    if (container) renderWatchlist(items);
+    renderDashboardWatchlist(items);
+
+    // Watchlist has its own "Refresh" button independent of Dashboard/Prices/
+    // Portfolio, so keep the shared status indicator in sync here too.
+    // /api/health is the canonical source for api_status + is_stale together.
+    try {
+      const health = await apiGet("/api/health");
+      updateStatusIndicator(health.api_status, health.is_stale);
+    } catch { /* status indicator just won't update this cycle - non-fatal */ }
   } catch (err) {
-    container.innerHTML = `<div class="empty-state" style="padding:2rem;">
-      Could not load watchlist. ${escHtml(err.message || "")}
-    </div>`;
+    if (container) {
+      container.innerHTML = `<div class="empty-state" style="padding:2rem;">
+        Could not load watchlist. ${escHtml(err.message || "")}
+      </div>`;
+    }
   }
+}
+
+function renderDashboardWatchlist(items) {
+  const container = document.getElementById("dashWatchlist");
+  if (!container) return;
+
+  if (!items || items.length === 0) {
+    container.innerHTML = `<div class="empty-state">Add coins in the Watchlist tab to see them here.</div>`;
+    return;
+  }
+
+  container.innerHTML = items.map(item => {
+    const priceStr = item.price_usd !== null && item.price_usd !== undefined
+      ? "$" + formatPrice(item.price_usd)
+      : "N/A";
+    const noteHtml = item.notes
+      ? `<div class="coin-card-note" title="${escHtml(item.notes)}">${escHtml(item.notes)}</div>`
+      : "";
+    return `<div class="coin-card">
+      <div class="coin-card-symbol">${escHtml(item.symbol)}</div>
+      <div class="coin-card-name">${escHtml(item.name)}</div>
+      <div class="coin-card-price">${priceStr}</div>
+      ${noteHtml}
+    </div>`;
+  }).join("");
 }
 
 function renderWatchlist(items) {
@@ -1040,7 +1076,7 @@ function editWatchlistNote(symbol) {
 
   const currentText = cell.textContent.trim() === "No note" ? "" : cell.textContent.trim();
 
-  cell.innerHTML = `<input type="text" class="inline-edit-input" value="${escHtml(currentText)}"
+  cell.innerHTML = `<input type="text" class="inline-edit-input" maxlength="280" value="${escHtml(currentText)}"
     onkeydown="if(event.key==='Enter') this.blur(); if(event.key==='Escape') this.dataset.cancel='1', this.blur();"
     onblur="saveWatchlistNote('${symbol}', this)" />`;
   const input = cell.querySelector("input");
@@ -1129,14 +1165,24 @@ function clearPortfolioSearch() { document.getElementById("portfolioSearchInput"
 // ---------------------------------------------------------------------------
 // Status Indicator
 // ---------------------------------------------------------------------------
-function updateStatusIndicator(status) {
+function updateStatusIndicator(status, isStale = false) {
   const dot      = document.getElementById("statusDot");
   const label    = document.getElementById("statusLabel");
   const dashStatus = document.getElementById("dashApiStatus");
 
   if (!dot || !label) return;
 
-  if (status === "ONLINE") {
+  // Stale takes visual priority over ONLINE: the cache is old enough that
+  // what's on screen may not reflect the live market, even though the last
+  // successful fetch technically succeeded.
+  if (status === "ONLINE" && isStale) {
+    dot.className     = "status-dot stale";
+    label.textContent = "API Online (cached)";
+    if (dashStatus) {
+      dashStatus.textContent = "CACHED";
+      dashStatus.className   = "stat-value api-status-value stale";
+    }
+  } else if (status === "ONLINE") {
     dot.className     = "status-dot online";
     label.textContent = "API Online";
     if (dashStatus) {
@@ -1160,11 +1206,12 @@ function updateStatusIndicator(status) {
   }
 }
 
-function updateLastUpdated(ts) {
+function updateLastUpdated(ts, isStale = false) {
   const el1 = document.getElementById("footerLastUpdated");
   const el2 = document.getElementById("dashLastUpdated");
-  if (el1) el1.textContent = ts || "—";
-  if (el2) el2.textContent = ts || "—";
+  const suffix = isStale ? " (stale)" : "";
+  if (el1) el1.textContent = ts ? ts + suffix : "—";
+  if (el2) el2.textContent = ts ? ts + suffix : "—";
 }
 
 // ---------------------------------------------------------------------------

@@ -16,9 +16,10 @@ Thanks for your interest in contributing. This is a small privacy-focused projec
    ```
    git checkout -b feature/your-feature-name
    ```
-4. **Launch the app** with `run.bat` (Windows) to test your changes locally.
-5. **Commit** your changes with a clear message.
-6. **Push** your branch and open a **Pull Request** against `main`.
+4. **Launch the app** with `run.bat` (Windows) or `./run.sh` (macOS/Linux) to test your changes locally.
+5. **Run the test suite** before opening a PR (see [Testing](#testing) below).
+6. **Commit** your changes with a clear message.
+7. **Push** your branch and open a **Pull Request** against `main`.
 
 ---
 
@@ -50,6 +51,21 @@ This is the most common contribution. To add a coin:
    ```
 
 4. Restart the server and verify the coin appears in the Prices tab with a live price.
+
+---
+
+## Testing
+
+```
+pip install pytest httpx -r backend/requirements.txt
+python -m pytest tests/ -v
+```
+
+Every push and PR also runs this same suite automatically via GitHub Actions
+(`.github/workflows/ci.yml`) across Python 3.10–3.12. If you add a new
+backend endpoint or change validation behavior, add a test for it in
+`tests/test_api.py` (endpoint-level) or `tests/test_portfolio.py`
+(calculation-engine-level) rather than only testing manually through the UI.
 
 ---
 

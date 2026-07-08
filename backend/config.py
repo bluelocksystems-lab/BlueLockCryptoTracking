@@ -27,8 +27,13 @@ SERVER_PORT = 8765
 # ---------------------------------------------------------------------------
 # Database
 # ---------------------------------------------------------------------------
-# Path to the SQLite database file (relative to project root)
-DB_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "portfolio.db")
+# Path to the SQLite database file (relative to project root).
+# Overridable via BLUELOCK_DB_PATH so tests can point at an isolated,
+# throwaway database instead of the person's real portfolio data.
+DB_PATH = os.environ.get(
+    "BLUELOCK_DB_PATH",
+    os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "portfolio.db"),
+)
 
 # ---------------------------------------------------------------------------
 # Price Cache
@@ -102,3 +107,11 @@ COIN_CATEGORIES = {
 # Input Validation Limits
 # ---------------------------------------------------------------------------
 MAX_AMOUNT = 1_000_000_000   # Maximum coin amount allowed in portfolio/calculator
+MAX_NOTE_LENGTH = 280        # Maximum length for free-text watchlist notes
+
+# ---------------------------------------------------------------------------
+# API Failure Backoff
+# ---------------------------------------------------------------------------
+# After the CoinGecko API fails, how long (seconds) to skip retrying and just
+# serve the last known cache instead of hammering a down API on every request.
+API_FAILURE_COOLDOWN_SECONDS = 15

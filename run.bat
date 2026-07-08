@@ -10,8 +10,9 @@
 ::   5. Installs all required packages
 ::   6. Verifies installation succeeded
 ::   7. Creates the data directory if missing
-::   8. Starts the FastAPI server
-::   9. Opens the browser once the server is ready
+::   8. Reads host/port from backend\config.py and checks the port is free
+::   9. Starts the FastAPI server
+::   10. Opens the browser once the server is ready
 :: =============================================================================
 
 title BlueLock Crypto Tracking V1.4
@@ -157,21 +158,49 @@ if not exist "data\" (
 echo.
 
 :: ---------------------------------------------------------------------------
+:: Step 6a: Read Host/Port From config.py
+:: This is what makes editing backend\config.py actually change where the
+:: server binds - the port check, the server itself, and the browser URL
+:: all read from the same place instead of three separately hardcoded 8765s.
+:: ---------------------------------------------------------------------------
+for /f "delims=" %%H in ('venv\Scripts\python.exe -c "import sys; sys.path.insert(0, 'backend'); import config; print(config.SERVER_HOST)"') do set SERVERHOST=%%H
+for /f "delims=" %%P in ('venv\Scripts\python.exe -c "import sys; sys.path.insert(0, 'backend'); import config; print(config.SERVER_PORT)"') do set SERVERPORT=%%P
+
+:: ---------------------------------------------------------------------------
+:: Step 6b: Check The Configured Port Isn't Already In Use
+:: This is the most common "it won't start" report, and the raw uvicorn
+:: error for it is not obvious to a non-technical user.
+:: ---------------------------------------------------------------------------
+netstat -an | findstr "%SERVERHOST%:%SERVERPORT%" | findstr "LISTENING" >nul 2>&1
+if %errorlevel% equ 0 (
+    echo.
+    echo  ERROR: Port %SERVERPORT% is already in use.
+    echo  BlueLock may already be running in another window - check for it
+    echo  there, or close whatever else is using port %SERVERPORT%.
+    echo.
+    pause
+    exit /b 1
+)
+echo.
+
+:: ---------------------------------------------------------------------------
 :: Start Server
 :: ---------------------------------------------------------------------------
 echo  ============================================================
 echo   Starting BlueLock Crypto Tracking...
-echo   URL: http://127.0.0.1:8765
+echo   URL: http://%SERVERHOST%:%SERVERPORT%
 echo   Press Ctrl+C to stop the server.
 echo  ============================================================
 echo.
 
 :: Open browser in background after server has had time to start
-start "" cmd /c "timeout /t 4 /nobreak >nul && start "" "http://127.0.0.1:8765""
+start "" cmd /c "timeout /t 4 /nobreak >nul && start "" "http://%SERVERHOST%:%SERVERPORT%""
 
-:: Start FastAPI server using venv Python directly (no --reload, no watchfiles dependency)
+:: Start FastAPI server using venv Python directly (no --reload, no watchfiles
+:: dependency). main.py's __main__ block reads config.SERVER_HOST/SERVER_PORT
+:: itself, so there's no port/host duplicated here.
 cd backend
-..\venv\Scripts\python.exe -m uvicorn main:app --host 127.0.0.1 --port 8765
+..\venv\Scripts\python.exe main.py
 
 echo.
 echo  Server stopped.

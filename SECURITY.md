@@ -20,7 +20,7 @@ BlueLock Crypto Tracking is a **local-only, self-hosted** application. It:
 
 **Please do NOT open a public GitHub issue for security vulnerabilities.**
 
-If you discover a security vulnerability, please report it responsibly:
+Report it privately using [GitHub's Security Advisories](https://github.com/bluelocksystems-lab/BlueLockCryptoTracking/security/advisories/new) for this repository.
 
 Include:
 - A description of the vulnerability

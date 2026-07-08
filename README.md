@@ -3,6 +3,7 @@
 ![Version](https://img.shields.io/badge/version-1.4-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Python](https://img.shields.io/badge/python-3.10+-yellow)
+![CI](https://github.com/bluelocksystems-lab/BlueLockCryptoTracking/actions/workflows/ci.yml/badge.svg)
 
 > Open-source cryptocurrency price and portfolio tracker.  
 > Privacy-focused, local-first portfolio tracking. No accounts, cloud storage, or telemetry.
@@ -40,7 +41,7 @@ Prices are fetched live from CoinGecko and refreshed every 60 seconds.
 | **Live Purchase Preview** | See Cost Basis, Current Value, P&L, and ROI instantly as you fill in the form |
 | **Live Prices** | Real-time prices for 11 cryptocurrencies via CoinGecko |
 | **Portfolio Summary** | Total value, total cost, overall P&L, and ROI at a glance |
-| **Dashboard** | Portfolio snapshot, top gainer, top loser, favorites, and API status |
+| **Dashboard** | Portfolio snapshot, watchlist snapshot, top gainer, top loser, favorites, and API status (with a stale-cache indicator when prices are running on cached data) |
 | **Coin Detail View** | Full purchase history with per-entry edit and delete |
 | **Watchlist** *(new in 1.4)* | Track coins you don't own yet, with live prices and personal notes |
 | **Delete Holdings** *(improved in 1.4)* | One-click delete or bulk multi-select delete directly from the Holdings table, with a confirmation dialog that shows exactly how many purchase entries will be removed |
@@ -146,12 +147,13 @@ BlueLockCryptoTracking/
 │   └── portfolio.db     # SQLite database (auto-created, gitignored)
 │
 ├── tests/
-│   └── test_portfolio.py # Unit tests for the calculation engine
+│   ├── test_portfolio.py # Unit tests for the calculation engine
+│   └── test_api.py       # API-level tests (Watchlist, Delete Holdings)
 │
 ├── .github/
 │   ├── ISSUE_TEMPLATE/   # Bug report & feature request templates
 │   ├── PULL_REQUEST_TEMPLATE.md
-│   └── workflows/ci.yml # GitHub Actions: pytest + ruff on 3.10/3.11/3.12
+│   └── workflows/ci.yml # GitHub Actions: pytest on 3.10/3.11/3.12
 │
 ├── run.bat              # Windows one-click launcher
 ├── run.sh               # Linux/macOS one-click launcher
@@ -181,10 +183,15 @@ All endpoints served at `http://127.0.0.1:8765`:
 | PUT | `/api/portfolio/{id}` | Update a purchase entry |
 | DELETE | `/api/portfolio/{id}` | Delete a purchase entry |
 | GET | `/api/portfolio/{symbol}` | Coin detail + purchase history |
+| DELETE | `/api/portfolio/symbol/{symbol}` | Delete all holdings for a coin |
 | GET | `/api/portfolio/export/csv` | Download portfolio as CSV |
 | GET | `/api/favorites` | Get favorited symbols |
 | POST | `/api/favorites` | Add a coin to favorites |
 | DELETE | `/api/favorites/{symbol}` | Remove from favorites |
+| GET | `/api/watchlist` | Get watched coins with live prices |
+| POST | `/api/watchlist` | Add a coin to the watchlist |
+| PUT | `/api/watchlist/{symbol}` | Update a watched coin's note |
+| DELETE | `/api/watchlist/{symbol}` | Remove a coin from the watchlist |
 
 ---
 
@@ -200,7 +207,7 @@ CoinGecko's free API has rate limits. Wait 60 seconds and click Refresh. If the 
 Navigate manually to `http://127.0.0.1:8765`.
 
 **Port already in use**
-Edit `run.bat` and `backend/config.py` to change `8765` to a different port (e.g. `8766`).
+`run.bat`/`run.sh` now detect this on startup and tell you directly - it usually means BlueLock is already running in another window. Check for it there and close it. If you deliberately want to run on a different port, edit `SERVER_PORT` (and `SERVER_HOST` if needed) in `backend/config.py` - the launch scripts, the port-in-use check, the server bind, and the auto-opened browser URL all read from there, so nothing else needs to change.
 
 **Resetting the database**
 Stop the server, delete `data/portfolio.db`, and restart. A fresh database is created automatically.

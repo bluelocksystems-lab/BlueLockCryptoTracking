@@ -4,6 +4,54 @@ All notable changes to BlueLock Crypto Tracking are documented here.
 
 ---
 
+## [1.4] — update 3 of 3 (unreleased)
+
+### Fixed
+- **`config.py`'s `SERVER_PORT`/`SERVER_HOST` now actually control the server** — previously they were log-line decoration only; the real bind address was hardcoded as `--host 127.0.0.1 --port 8765` in `run.sh`/`run.bat`'s `uvicorn` command, so editing config.py silently did nothing. Added a `if __name__ == "__main__"` entry point to `main.py` that calls `uvicorn.run(app, host=config.SERVER_HOST, port=config.SERVER_PORT)`, and switched both launch scripts to run `python main.py` instead of invoking `uvicorn` directly with hardcoded flags. `run.sh`/`run.bat` now read the host/port from `config.py` themselves too, so the port-in-use check, the server bind, and the auto-opened browser URL can't drift out of sync with each other again.
+  - Verified live: ran the server via `python main.py` on the default port, then again after changing `SERVER_PORT` to `8877` in `config.py` - confirmed the server bound to `8877`, `8765` was correctly unbound, and reverted the change afterward.
+
+### QC / Consistency Pass
+Cross-checked docs against actual repo contents and fixed several genuine mismatches (some pre-dating this update line):
+- **`.gitignore` didn't exist.** README claimed `data/portfolio.db` was "gitignored" - it wasn't. For a project whose whole pitch is local-first/no-telemetry, an unignored real portfolio DB was a real gap. Added one.
+- **`.github/ISSUE_TEMPLATE/` and `PULL_REQUEST_TEMPLATE.md` were documented (README tree, and the 1.4 changelog's "security-contact link" note) but never actually committed.** Added `config.yml` (with a working security-contact link), `bug_report.yml`, `feature_request.yml`, and `PULL_REQUEST_TEMPLATE.md`.
+- **`SECURITY.md` told people to "report responsibly" with no actual reporting mechanism.** Added a link to GitHub's private Security Advisories.
+- **README's API Reference table was missing the entire Watchlist endpoint group and `DELETE /api/portfolio/symbol/{symbol}`** (Delete Holdings) - both shipped in update 1 but were never documented.
+- **README's CI description said "pytest + ruff"** - the actual `ci.yml` only runs pytest. Corrected the wording rather than silently adding a linter nobody asked for.
+- **`/api/watchlist`'s new `is_stale` field was dead data** - nothing consumed it, so the status indicator went stale if you refreshed only the Watchlist tab. `loadWatchlist()` now also pulls `/api/health` to keep the shared status indicator in sync.
+- README Dashboard feature description and file tree updated to mention the Watchlist Snapshot, stale-cache indicator, and `test_api.py`.
+- Added a CI badge to the README now that `ci.yml` is real.
+- `CONTRIBUTING.md` never mentioned running tests at all - added a `pytest` step to the getting-started flow and a short Testing section.
+
+### Added
+- **API test coverage** — `tests/test_api.py` adds 13 tests against the live FastAPI app (via `TestClient`), covering the two feature sets update 1 shipped with zero coverage:
+  - Watchlist: add/get/update/remove, note sanitization (trim, control-char strip, 280-char cap), unsupported-symbol rejection, double-delete returns 404.
+  - Delete Holdings: single-entry delete, delete-all-for-symbol, double-delete 404s, and confirms deleting one symbol's holdings never touches another's (the case the frontend's bulk-delete relies on).
+  - Tests run against an isolated throwaway SQLite file and a mocked price cache, so the suite never hits the real network or a person's actual portfolio data.
+- **`.github/workflows/ci.yml`** — GitHub Actions workflow that runs the full `pytest` suite on push/PR across Python 3.10–3.12. This was referenced in the 1.2 changelog but was never actually committed; it exists now.
+- **`BLUELOCK_DB_PATH` environment variable** — `config.py` now reads the database path from this env var if set, falling back to the existing default. This is what makes the new tests possible without touching real data, and it's also handy for anyone who wants to point the app at a different data file.
+- **Friendly port-in-use check** in both `run.sh` and `run.bat` — if something is already listening on 8765 (most often BlueLock still running in another window), the launcher now says so plainly and exits, instead of surfacing a raw asyncio/uvicorn bind error.
+- **Dependency import verification** in `run.sh`, matching the check `run.bat` already had — catches a partially-corrupted `venv` install before it fails later with a confusing traceback.
+
+### Notes
+- Pillars #1 (live purchase previews) and #2 (dynamic coin loading) were shipped in earlier versions (v1.1 and v1.2 respectively) and remain untouched by this 1.4 update line - nothing was missing here.
+
+---
+
+## [1.4] — update 2 of 3 (unreleased)
+
+### Added
+- **Watchlist Snapshot** on the Dashboard — mirrors the existing Favorites/Portfolio Snapshot panels, showing symbol, live price, and note (truncated) for every watched coin without needing to open the Watchlist tab. Refreshes on the same cycle as the rest of the dashboard.
+- **Stale-cache indicator** — when the price cache is older than `CACHE_DURATION_SECONDS`, the API status dot/label switch to an amber "cached" state instead of silently claiming ONLINE. Exposed via a new `is_stale` field on `/api/health`, `/api/prices`, `/api/portfolio`, and `/api/watchlist`.
+- **Watchlist note validation** — `notes` is now capped at `MAX_NOTE_LENGTH` (280 chars), stripped of control characters, and trimmed, both on add and on inline edit (`WatchlistEntry`, `WatchlistNoteUpdate`). Frontend inputs got matching `maxlength="280"`.
+
+### Fixed
+- **CoinGecko retry storm** — previously, once the 60s cache expired, *every* incoming request during an outage independently ran the full retry+sleep sequence against a downed API (worst case ~24s of blocking per request). `prices.py` now tracks the last failure time and enters a 15s cooldown (`API_FAILURE_COOLDOWN_SECONDS`) where it serves the existing stale cache immediately instead of retrying, verified with a network-level test that confirms only one retry sequence fires across three consecutive refresh calls during an outage.
+
+### Changed
+- `refreshAll()` on the frontend now also loads the Watchlist, so its dashboard snapshot and stale badge stay current without switching tabs.
+
+---
+
 ## [1.4] — 2026-07-05
 
 ### Added

@@ -8,7 +8,24 @@
 from datetime import datetime
 from pydantic import BaseModel, field_validator
 from typing import Optional
-from config import SUPPORTED_COINS, MAX_AMOUNT
+from config import SUPPORTED_COINS, MAX_AMOUNT, MAX_NOTE_LENGTH
+
+
+def _clean_note(v: str) -> str:
+    """
+    Shared note-sanitization for watchlist free-text fields:
+    strip leading/trailing whitespace, drop control characters (which have
+    no legitimate use in a short reminder note and can break rendering/CSV
+    export), and enforce a max length so one entry can't bloat storage or
+    the UI.
+    """
+    if not v:
+        return ""
+    cleaned = "".join(ch for ch in v if ch == "\n" or ch.isprintable())
+    cleaned = cleaned.strip()
+    if len(cleaned) > MAX_NOTE_LENGTH:
+        raise ValueError(f"Note must be {MAX_NOTE_LENGTH} characters or fewer.")
+    return cleaned
 
 
 class PortfolioEntryCreate(BaseModel):
@@ -122,10 +139,20 @@ class WatchlistEntry(BaseModel):
             raise ValueError(f"Unsupported coin symbol: {v}")
         return upper
 
+    @field_validator("notes")
+    @classmethod
+    def validate_notes(cls, v: str) -> str:
+        return _clean_note(v)
+
 
 class WatchlistNoteUpdate(BaseModel):
     """Model for updating the note on a watched coin."""
     notes: str = ""
+
+    @field_validator("notes")
+    @classmethod
+    def validate_notes(cls, v: str) -> str:
+        return _clean_note(v)
 
 
 class CalculateRequest(BaseModel):
